@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>SGC &#8212; グラフ道場</title>
+    <title>表記 &#8212; グラフ道場</title>
     
   <!-- Loaded before other Sphinx assets -->
   <link href="_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
@@ -53,11 +53,10 @@ const thebe_selector_output = ".output, .cell_output"
     <script async="async" src="_static/sphinx-thebe.js"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-svg.js"></script>
     <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
-    <link rel="canonical" href="https://yuya-s.github.io/GraphDojo/03SGC.html" />
+    <link rel="canonical" href="https://yuya-s.github.io/GraphDojo/notation.html" />
     <link rel="index" title="索引" href="genindex.html" />
     <link rel="search" title="検索" href="search.html" />
-    <link rel="next" title="表記" href="notation.html" />
-    <link rel="prev" title="GAT" href="02GAT.html" />
+    <link rel="prev" title="SGC" href="03SGC.html" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="docsearch:language" content="ja">
     
@@ -123,13 +122,13 @@ const thebe_selector_output = ".output, .cell_output"
    GAT
   </a>
  </li>
- <li class="toctree-l1 current active">
-  <a class="current reference internal" href="#">
+ <li class="toctree-l1">
+  <a class="reference internal" href="03SGC.html">
    SGC
   </a>
  </li>
- <li class="toctree-l1">
-  <a class="reference internal" href="notation.html">
+ <li class="toctree-l1 current active">
+  <a class="current reference internal" href="#">
    表記
   </a>
  </li>
@@ -223,7 +222,7 @@ title="Source repository"
       </li>
       
       <li>
-        <a href="https://github.com/yuya-s/GraphDojo/issues/new?title=Issue%20on%20page%20%2F03SGC.html&body=Your%20issue%20content%20here."
+        <a href="https://github.com/yuya-s/GraphDojo/issues/new?title=Issue%20on%20page%20%2Fnotation.html&body=Your%20issue%20content%20here."
    class="headerbtn"
    data-toggle="tooltip"
 data-placement="left"
@@ -251,7 +250,7 @@ title="Open an issue"
   <div class="menu-dropdown__content">
     <ul>
       <li>
-        <a href="_sources/03SGC.md"
+        <a href="_sources/notation.md"
    class="headerbtn"
    data-toggle="tooltip"
 data-placement="left"
@@ -288,80 +287,23 @@ title="Print to PDF"
     </ul>
   </div>
 </div>
-<label for="__page-toc"
-  class="headerbtn headerbtn-page-toc"
-  
->
-  
-
-<span class="headerbtn__icon-container">
-  <i class="fas fa-list"></i>
-  </span>
-
-</label>
 
     </div>
 </div>
 
 <!-- Table of contents -->
 <div class="col-md-3 bd-toc show noprint">
-    <div class="tocsection onthispage pt-5 pb-3">
-        <i class="fas fa-list"></i> Contents
-    </div>
-    <nav id="bd-toc-nav" aria-label="Page">
-        <ul class="visible nav section-nav flex-column">
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#id1">
-   SGCの理論
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#id2">
-   SGCの実装
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#id3">
-   SGCの文献
-  </a>
- </li>
-</ul>
-
-    </nav>
 </div>
     </div>
     <div class="article row">
         <div class="col pl-md-3 pl-lg-5 content-container">
             <!-- Table of contents that is only displayed when printing the page -->
             <div id="jb-print-docs-body" class="onlyprint">
-                <h1>SGC</h1>
+                <h1>表記</h1>
                 <!-- Table of contents -->
                 <div id="print-main-content">
                     <div id="jb-print-toc">
                         
-                        <div>
-                            <h2> Contents </h2>
-                        </div>
-                        <nav aria-label="Page">
-                            <ul class="visible nav section-nav flex-column">
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#id1">
-   SGCの理論
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#id2">
-   SGCの実装
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#id3">
-   SGCの文献
-  </a>
- </li>
-</ul>
-
-                        </nav>
                     </div>
                 </div>
             </div>
@@ -369,28 +311,109 @@ title="Print to PDF"
                 
               <div>
                 
-  <section class="tex2jax_ignore mathjax_ignore" id="sgc">
-<h1>SGC<a class="headerlink" href="#sgc" title="このヘッドラインへのパーマリンク">#</a></h1>
-<p><strong>SGC</strong>はGCNの処理を簡易にすることで学習の効率化を目指したGNNです．</p>
-<section id="id1">
-<h2>SGCの理論<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">#</a></h2>
-<p>GCNでは隣接する節点の集約という処理を逐一実行しなければいけませんでした．逐一処理しなければいけない原因は活性化関数の存在です．活性化関数があるせいで集約の事前計算ができませんでした．</p>
-<p>SGCでは活性化関数を全て取り除き，事前に特徴量を集約し，線形層での学習を行うという処理を行います．</p>
-<p>SGCは下記の数式で表すことができます．</p>
-<p><span class="math notranslate nohighlight">\(\bm{H}=\bm{A}^k\bm{X}\bm{W}\)</span></p>
-<p><span class="math notranslate nohighlight">\(k\)</span>はGCNにおける畳込み回数に相当します．</p>
-<p>非常に簡単な式ですが，学習も高速，精度もGCNとそれほど変わらないという結果が報告されています．</p>
-</section>
-<section id="id2">
-<h2>SGCの実装<a class="headerlink" href="#id2" title="このヘッドラインへのパーマリンク">#</a></h2>
-<p>準備中です．</p>
-</section>
-<section id="id3">
-<h2>SGCの文献<a class="headerlink" href="#id3" title="このヘッドラインへのパーマリンク">#</a></h2>
-<p>論文：Simplifying Graph Convolutional Networks</p>
-<p>著者：Felix Wu, Tianyi Zhang, Amauri Holanda de Souza Jr., Christopher Fifty, Tao Yu, Kilian Q. Weinberger</p>
-<p>会議：ICML 2019 <a class="reference external" href="https://arxiv.org/abs/1902.07153">https://arxiv.org/abs/1902.07153</a></p>
-</section>
+  <section class="tex2jax_ignore mathjax_ignore" id="id1">
+<h1>表記<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">#</a></h1>
+<p><span class="math notranslate nohighlight">\(\def\bm{\boldsymbol}\)</span>グラフ道場では，以下の記法を採用しています．</p>
+<table class="colwidths-auto table">
+<thead>
+<tr class="row-odd"><th class="text-align:center head"><p>表記</p></th>
+<th class="text-align:left head"><p>説明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-align:center"><p><span class="math notranslate nohighlight">\(a\)</span></p></td>
+<td class="text-align:left"><p>スカラー</p></td>
+</tr>
+<tr class="row-odd"><td class="text-align:center"><p><span class="math notranslate nohighlight">\(\bm{a}\)</span></p></td>
+<td class="text-align:left"><p>ベクトル（断りがない限り列ベクトル）</p></td>
+</tr>
+<tr class="row-even"><td class="text-align:center"><p><span class="math notranslate nohighlight">\(a_i\)</span></p></td>
+<td class="text-align:left"><p>ベクトル<span class="math notranslate nohighlight">\(\bm{a}\)</span>の<span class="math notranslate nohighlight">\(i\)</span>番目の要素（先頭の要素は<span class="math notranslate nohighlight">\(1\)</span>番目）</p></td>
+</tr>
+<tr class="row-odd"><td class="text-align:center"><p><span class="math notranslate nohighlight">\(\bm{A}\)</span></p></td>
+<td class="text-align:left"><p>行列</p></td>
+</tr>
+<tr class="row-even"><td class="text-align:center"><p><span class="math notranslate nohighlight">\(A_{i,j}\)</span></p></td>
+<td class="text-align:left"><p>行列<span class="math notranslate nohighlight">\(\bm{A}\)</span>の<span class="math notranslate nohighlight">\(i\)</span>行<span class="math notranslate nohighlight">\(j\)</span>列の要素</p></td>
+</tr>
+<tr class="row-odd"><td class="text-align:center"><p><span class="math notranslate nohighlight">\(\bm{A}_{i,:}\)</span> または <span class="math notranslate nohighlight">\(\bm{A}_{i}\)</span></p></td>
+<td class="text-align:left"><p>行列<span class="math notranslate nohighlight">\(\bm{A}\)</span>の<span class="math notranslate nohighlight">\(i\)</span>行ベクトル</p></td>
+</tr>
+<tr class="row-even"><td class="text-align:center"><p><span class="math notranslate nohighlight">\(\bm{A}_{:,j}\)</span></p></td>
+<td class="text-align:left"><p>行列<span class="math notranslate nohighlight">\(\bm{A}\)</span>の<span class="math notranslate nohighlight">\(j\)</span>列ベクトル</p></td>
+</tr>
+<tr class="row-odd"><td class="text-align:center"><p><span class="math notranslate nohighlight">\(\bm{I}_n\)</span></p></td>
+<td class="text-align:left"><p><span class="math notranslate nohighlight">\(n \times n\)</span>の単位行列</p></td>
+</tr>
+<tr class="row-even"><td class="text-align:center"><p><span class="math notranslate nohighlight">\(\bm{I}\)</span></p></td>
+<td class="text-align:left"><p>単位行列（大きさは文脈から推測する）</p></td>
+</tr>
+<tr class="row-odd"><td class="text-align:center"><p><span class="math notranslate nohighlight">\(\bm{A}^\top\)</span></p></td>
+<td class="text-align:left"><p>行列<span class="math notranslate nohighlight">\(\bm{A}\)</span>の転置</p></td>
+</tr>
+<tr class="row-even"><td class="text-align:center"><p><span class="math notranslate nohighlight">\(\bm{A}^{-1}\)</span></p></td>
+<td class="text-align:left"><p>行列<span class="math notranslate nohighlight">\(\bm{A}\)</span>の逆行列</p></td>
+</tr>
+<tr class="row-odd"><td class="text-align:center"><p><span class="math notranslate nohighlight">\(\mathbb{A}\)</span></p></td>
+<td class="text-align:left"><p>集合</p></td>
+</tr>
+</tbody>
+</table>
+<p>以下の変数はおおよそ一貫した意味で用いられます．</p>
+<table class="colwidths-auto table">
+<thead>
+<tr class="row-odd"><th class="text-align:center head"><p>表記</p></th>
+<th class="text-align:left head"><p>説明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-align:center"><p><span class="math notranslate nohighlight">\(l\)</span></p></td>
+<td class="text-align:left"><p>l番目の層</p></td>
+</tr>
+<tr class="row-odd"><td class="text-align:center"><p><span class="math notranslate nohighlight">\(\bm{H}\)</span></p></td>
+<td class="text-align:left"><p>特徴量行列 (<span class="math notranslate nohighlight">\(\bm{H}_v\)</span> が節点<span class="math notranslate nohighlight">\(v\)</span>の特徴量)</p></td>
+</tr>
+<tr class="row-even"><td class="text-align:center"><p><span class="math notranslate nohighlight">\(\bm{X}\)</span></p></td>
+<td class="text-align:left"><p>属性行列 (<span class="math notranslate nohighlight">\(\bm{X}_v\)</span> が節点<span class="math notranslate nohighlight">\(v\)</span>の属性)</p></td>
+</tr>
+<tr class="row-odd"><td class="text-align:center"><p><span class="math notranslate nohighlight">\(\bm{A}\)</span></p></td>
+<td class="text-align:left"><p>隣接行列</p></td>
+</tr>
+<tr class="row-even"><td class="text-align:center"><p><span class="math notranslate nohighlight">\(\bm{D}\)</span></p></td>
+<td class="text-align:left"><p>次数行列</p></td>
+</tr>
+<tr class="row-odd"><td class="text-align:center"><p><span class="math notranslate nohighlight">\(d_v\)</span></p></td>
+<td class="text-align:left"><p>節点<span class="math notranslate nohighlight">\(v\)</span>の次数</p></td>
+</tr>
+<tr class="row-even"><td class="text-align:center"><p><span class="math notranslate nohighlight">\(\bm{A}'\)</span></p></td>
+<td class="text-align:left"><p>隣接行列 + 対角成分が1</p></td>
+</tr>
+<tr class="row-odd"><td class="text-align:center"><p><span class="math notranslate nohighlight">\(\bm{D}'\)</span></p></td>
+<td class="text-align:left"><p><span class="math notranslate nohighlight">\(\bm{A}'\)</span>の次数行列</p></td>
+</tr>
+<tr class="row-even"><td class="text-align:center"><p><span class="math notranslate nohighlight">\(v, u, m\)</span></p></td>
+<td class="text-align:left"><p>節点</p></td>
+</tr>
+<tr class="row-odd"><td class="text-align:center"><p><span class="math notranslate nohighlight">\(e_{v,u}\)</span></p></td>
+<td class="text-align:left"><p><span class="math notranslate nohighlight">\(v,u\)</span>間の枝</p></td>
+</tr>
+<tr class="row-even"><td class="text-align:center"><p><span class="math notranslate nohighlight">\(\mathbb{V}\)</span></p></td>
+<td class="text-align:left"><p>節点集合</p></td>
+</tr>
+<tr class="row-odd"><td class="text-align:center"><p><span class="math notranslate nohighlight">\(\mathbb{N}_v\)</span></p></td>
+<td class="text-align:left"><p>節点<span class="math notranslate nohighlight">\(v\)</span>の隣接節点集合</p></td>
+</tr>
+<tr class="row-even"><td class="text-align:center"><p><span class="math notranslate nohighlight">\(\bm{W}\)</span></p></td>
+<td class="text-align:left"><p>学習パラメータ</p></td>
+</tr>
+<tr class="row-odd"><td class="text-align:center"><p><span class="math notranslate nohighlight">\(\sigma\)</span></p></td>
+<td class="text-align:left"><p>活性化関数</p></td>
+</tr>
+<tr class="row-even"><td class="text-align:center"><p>||</p></td>
+<td class="text-align:left"><p>結合操作</p></td>
+</tr>
+</tbody>
+</table>
 </section>
 
     <script type="text/x-thebe-config">
@@ -420,19 +443,12 @@ title="Print to PDF"
                 
     <!-- Previous / next buttons -->
 <div class='prev-next-area'>
-    <a class='left-prev' id="prev-link" href="02GAT.html" title="前へ ページ">
+    <a class='left-prev' id="prev-link" href="03SGC.html" title="前へ ページ">
         <i class="fas fa-angle-left"></i>
         <div class="prev-next-info">
             <p class="prev-next-subtitle">前へ</p>
-            <p class="prev-next-title">GAT</p>
+            <p class="prev-next-title">SGC</p>
         </div>
-    </a>
-    <a class='right-next' id="next-link" href="notation.html" title="次へ ページ">
-    <div class="prev-next-info">
-        <p class="prev-next-subtitle">次へ</p>
-        <p class="prev-next-title">表記</p>
-    </div>
-    <i class="fas fa-angle-right"></i>
     </a>
 </div>
             </footer>

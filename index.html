@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>はじめに &#8212; GNN道場</title>
+    <title>はじめに &#8212; グラフ道場</title>
     
   <!-- Loaded before other Sphinx assets -->
   <link href="_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
@@ -51,7 +51,7 @@ const thebe_selector_input = "pre"
 const thebe_selector_output = ".output, .cell_output"
 </script>
     <script async="async" src="_static/sphinx-thebe.js"></script>
-    <link rel="canonical" href="https://yuya-s.github.io/GNNDojo/index.html" />
+    <link rel="canonical" href="https://yuya-s.github.io/GraphDojo/index.html" />
     <link rel="index" title="索引" href="genindex.html" />
     <link rel="search" title="検索" href="search.html" />
     <link rel="next" title="GCN" href="01GCN.html" />
@@ -101,7 +101,7 @@ const thebe_selector_output = ".output, .cell_output"
       
       
       
-      <h1 class="site-logo" id="site-title">GNN道場</h1>
+      <h1 class="site-logo" id="site-title">グラフ道場</h1>
       
     </a>
 </div><form class="bd-search d-flex align-items-center" action="search.html" method="get">
@@ -123,6 +123,11 @@ const thebe_selector_output = ".output, .cell_output"
  <li class="toctree-l1">
   <a class="reference internal" href="03SGC.html">
    SGC
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notation.html">
+   表記
   </a>
  </li>
 </ul>
@@ -198,7 +203,7 @@ title="Fullscreen mode"
   <div class="menu-dropdown__content">
     <ul>
       <li>
-        <a href="https://github.com/yuya-s/GNNDojo"
+        <a href="https://github.com/yuya-s/GraphDojo"
    class="headerbtn"
    data-toggle="tooltip"
 data-placement="left"
@@ -215,7 +220,7 @@ title="Source repository"
       </li>
       
       <li>
-        <a href="https://github.com/yuya-s/GNNDojo/issues/new?title=Issue%20on%20page%20%2Findex.html&body=Your%20issue%20content%20here."
+        <a href="https://github.com/yuya-s/GraphDojo/issues/new?title=Issue%20on%20page%20%2Findex.html&body=Your%20issue%20content%20here."
    class="headerbtn"
    data-toggle="tooltip"
 data-placement="left"
@@ -306,21 +311,21 @@ title="Print to PDF"
                 
   <section class="tex2jax_ignore mathjax_ignore" id="id1">
 <h1>はじめに<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">#</a></h1>
-<p>GNN道場は，<strong>グラフニューラルネットワーク</strong>の基礎を実践的に学び，自身で実装し，発展させたモデルを設計する手助けをすることを目指しています．</p>
-<p>GNN道場で学べること</p>
+<p>グラフ道場は，<strong>グラフニューラルネットワーク</strong>の基礎を実践的に学び，自身で実装し，発展モデルを設計する手助けすることを目指しています．</p>
+<p>グラフ道場で学べること</p>
 <ul class="simple">
-<li><p>GNNの基礎的な理解</p></li>
+<li><p>グラフニューラルネットワーク (GNN) の基礎</p></li>
 <li><p>Pytorchを利用したGNNの実装</p></li>
 <li><p>Pythonによるグラフ処理</p></li>
 </ul>
-<p>GNN道場で学べないこと</p>
+<p>グラフ道場で学べないこと</p>
 <ul class="simple">
 <li><p>Pythonの基礎</p></li>
 <li><p>TensorFlowなどのPytorch以外の実装</p></li>
 <li><p>GNNの歴史や発展の流れ</p></li>
 <li><p>Deep Graph LibraryやPytorch geometricを活用したモデル構築（そのうち追加するかもしれません）</p></li>
 </ul>
-<p>GNN道場はオープンソース・プロジェクトは，<a class="reference external" href="https://creativecommons.org/licenses/by-nc-nd/4.0/deed.ja">クリエイティブ・コモンズ 表示 - 非営利 - 改変禁止 4.0 国際 (CC BY-NC-ND 4.0)</a>（プログラム部分以外）および<a class="reference external" href="https://opensource.org/licenses/MIT">MITライセンス</a>（プログラム部分）で公開されているオープンソース・プロジェクトです．不具合報告はGitHubの<a class="reference external" href="https://github.com/yuya-s/GNNDojo/issues">issues</a>までお願いします．</p>
+<p>グラフ道場はオープンソース・プロジェクトは，<a class="reference external" href="https://creativecommons.org/licenses/by-nc-nd/4.0/deed.ja">クリエイティブ・コモンズ 表示 - 非営利 - 改変禁止 4.0 国際 (CC BY-NC-ND 4.0)</a>（プログラム部分以外）および<a class="reference external" href="https://opensource.org/licenses/MIT">MITライセンス</a>（プログラム部分）で公開されているオープンソース・プロジェクトです．不具合報告はGitHubの<a class="reference external" href="https://github.com/yuya-s/GNNDojo/issues">issues</a>までお願いします．</p>
 <div class="toctree-wrapper compound">
 </div>
 </section>
@@ -329,8 +334,8 @@ title="Print to PDF"
     {
         requestKernel: true,
         binderOptions: {
-            repo: "yuya-s/GNNDojo",
-            ref: "master",
+            repo: "yuya-s/GraphDojo",
+            ref: "main",
         },
         codeMirrorConfig: {
             theme: "abcdef",

@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>GCN &#8212; GNN道場</title>
+    <title>GCN &#8212; グラフ道場</title>
     
   <!-- Loaded before other Sphinx assets -->
   <link href="_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
@@ -53,7 +53,7 @@ const thebe_selector_output = ".output, .cell_output"
     <script async="async" src="_static/sphinx-thebe.js"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-svg.js"></script>
     <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
-    <link rel="canonical" href="https://yuya-s.github.io/GNNDojo/01GCN.html" />
+    <link rel="canonical" href="https://yuya-s.github.io/GraphDojo/01GCN.html" />
     <link rel="index" title="索引" href="genindex.html" />
     <link rel="search" title="検索" href="search.html" />
     <link rel="next" title="GAT" href="02GAT.html" />
@@ -104,7 +104,7 @@ const thebe_selector_output = ".output, .cell_output"
       
       
       
-      <h1 class="site-logo" id="site-title">GNN道場</h1>
+      <h1 class="site-logo" id="site-title">グラフ道場</h1>
       
     </a>
 </div><form class="bd-search d-flex align-items-center" action="search.html" method="get">
@@ -126,6 +126,11 @@ const thebe_selector_output = ".output, .cell_output"
  <li class="toctree-l1">
   <a class="reference internal" href="03SGC.html">
    SGC
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notation.html">
+   表記
   </a>
  </li>
 </ul>
@@ -201,7 +206,7 @@ title="Fullscreen mode"
   <div class="menu-dropdown__content">
     <ul>
       <li>
-        <a href="https://github.com/yuya-s/GNNDojo"
+        <a href="https://github.com/yuya-s/GraphDojo"
    class="headerbtn"
    data-toggle="tooltip"
 data-placement="left"
@@ -218,7 +223,7 @@ title="Source repository"
       </li>
       
       <li>
-        <a href="https://github.com/yuya-s/GNNDojo/issues/new?title=Issue%20on%20page%20%2F01GCN.html&body=Your%20issue%20content%20here."
+        <a href="https://github.com/yuya-s/GraphDojo/issues/new?title=Issue%20on%20page%20%2F01GCN.html&body=Your%20issue%20content%20here."
    class="headerbtn"
    data-toggle="tooltip"
 data-placement="left"
@@ -315,6 +320,16 @@ title="Print to PDF"
    GCNの実装
   </a>
  </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#id3">
+   GCNのポイント
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#id4">
+   文献
+  </a>
+ </li>
 </ul>
 
     </nav>
@@ -344,6 +359,16 @@ title="Print to PDF"
    GCNの実装
   </a>
  </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#id3">
+   GCNのポイント
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#id4">
+   文献
+  </a>
+ </li>
 </ul>
 
                         </nav>
@@ -356,15 +381,73 @@ title="Print to PDF"
                 
   <section class="tex2jax_ignore mathjax_ignore" id="gcn">
 <h1>GCN<a class="headerlink" href="#gcn" title="このヘッドラインへのパーマリンク">#</a></h1>
-<p><strong>GCN</strong>は最も基礎的かつ直観的に理解しやすいGraph Neural Networkです．非常に端的に言うと，自身の特徴量と枝で繋がってる節点の特徴量を平均化して，自身の特徴量とするだけです．</p>
+<p><strong>GCN</strong>は最も基礎的で直観的に理解しやすいGraph Neural Networkです．非常に端的に言うと，自身の特徴量と枝で繋がってる節点の特徴量を平均化して重みを掛け，自身の特徴量とするだけです．</p>
 <section id="id1">
 <h2>GCNの理論<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">#</a></h2>
-<p><span class="math notranslate nohighlight">\(H^{l+1} = \sigma((I+D^{-\frac{1}{2}}AD^{-\frac{1}{2})}H^{l}W) \)</span></p>
-<p>あるひとつの節点<span class="math notranslate nohighlight">\(v\)</span>の特徴量を考えると，</p>
-<p><span class="math notranslate nohighlight">\(h_v^{l+1}=\sigma(h_v^l+\sum_{u \in N_v}\frac{1}{\sqrt{d_vd_u}}h_u W_v)\)</span></p>
+<p>GCNは下記の式で表すことができます．</p>
+<p><span class="math notranslate nohighlight">\(\bm{H}^{(l+1)} = \sigma(\bm{D}'^{-\frac{1}{2}}\bm{A}'\bm{D}'^{-\frac{1}{2}}\bm{H}^{(l)}\bm{W}^{(l)}) \)</span></p>
+<p>ここで，<span class="math notranslate nohighlight">\(\bm{H}^{(0)}=\bm{X}\)</span>になります．</p>
+<p>あるひとつの節点<span class="math notranslate nohighlight">\(v\)</span>の特徴量で考えると下記になります．</p>
+<p><span class="math notranslate nohighlight">\(\bm{H}_v^{(l+1)}=\sigma(\sum_{u \in \mathbb{N}_v\cup v}\frac{1}{\sqrt{d_vd_u}}\bm{H}_u \bm{W}^{(l)})\)</span></p>
 </section>
 <section id="id2">
 <h2>GCNの実装<a class="headerlink" href="#id2" title="このヘッドラインへのパーマリンク">#</a></h2>
+<p>GCNの実装では<span class="math notranslate nohighlight">\(\bm{D}'^{-\frac{1}{2}}\bm{A}'\bm{D}'^{-\frac{1}{2}}\)</span>の部分は学習に関係ないため事前に計算します．</p>
+<p>学習時には，<span class="math notranslate nohighlight">\(\bm{D}'^{-\frac{1}{2}}\bm{A}'\bm{D}'^{-\frac{1}{2}}\)</span>，<span class="math notranslate nohighlight">\(\bm{H}^{(l)}\)</span>および，<span class="math notranslate nohighlight">\(\bm{W}^{(l)}\)</span>を行列積することがGCN layerの処理になります．</p>
+<p>下記が実装例です．この実装では，バイアス項の有無を設定できるようにしています．</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">GCNLayer</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">in_features</span><span class="p">,</span> <span class="n">out_features</span><span class="p">,</span> <span class="n">use_bias</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">GCNLayer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">weight</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">FloatTensor</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="n">in_features</span><span class="p">,</span> <span class="n">out_features</span><span class="p">))))</span>
+        <span class="k">if</span> <span class="n">use_bias</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bias</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">FloatTensor</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="n">out_features</span><span class="p">,))))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">register_parameter</span><span class="p">(</span><span class="s1">&#39;bias&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">initialize_weights</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">initialize_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">nn</span><span class="o">.</span><span class="n">init</span><span class="o">.</span><span class="n">xavier_uniform_</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">weight</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">bias</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">init</span><span class="o">.</span><span class="n">zeros_</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bias</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">adj</span><span class="p">):</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">@</span> <span class="bp">self</span><span class="o">.</span><span class="n">weight</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">bias</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bias</span>
+
+        <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">mm</span><span class="p">(</span><span class="n">adj</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>下記は2層から成るGCNのモデルです．ノードの属性集合<span class="math notranslate nohighlight">\(x\)</span>と<span class="math notranslate nohighlight">\(adj\)</span> (つまり，<span class="math notranslate nohighlight">\(\bm{D}'^{-\frac{1}{2}}\bm{A}'\bm{D}'^{-\frac{1}{2}}\)</span>)を受け取って，1層目のGCN層の畳込み，活性化関数Relu，dropout，2層目のGCN層の畳込みを行ったものを予測値として返します．</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">GCN</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_features</span><span class="p">,</span> <span class="n">hidden_dim</span><span class="p">,</span> <span class="n">num_classes</span><span class="p">,</span> <span class="n">dropout</span><span class="p">,</span> <span class="n">use_bias</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">GCN</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gcn_1</span> <span class="o">=</span> <span class="n">GCNLayer</span><span class="p">(</span><span class="n">node_features</span><span class="p">,</span> <span class="n">hidden_dim</span><span class="p">,</span> <span class="n">use_bias</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gcn_2</span> <span class="o">=</span> <span class="n">GCNLayer</span><span class="p">(</span><span class="n">hidden_dim</span><span class="p">,</span> <span class="n">num_classes</span><span class="p">,</span> <span class="n">use_bias</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="n">p</span><span class="o">=</span><span class="n">dropout</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">initialize_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gcn_1</span><span class="o">.</span><span class="n">initialize_weights</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gcn_2</span><span class="o">.</span><span class="n">initialize_weights</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">adj</span><span class="p">):</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gcn_1</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">adj</span><span class="p">))</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gcn_2</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">adj</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">x</span>
+</pre></div>
+</div>
+</section>
+<section id="id3">
+<h2>GCNのポイント<a class="headerlink" href="#id3" title="このヘッドラインへのパーマリンク">#</a></h2>
+<p>周囲の特徴量を集約して学習パラメータを掛けることで自身の特徴量とする．</p>
+</section>
+<section id="id4">
+<h2>文献<a class="headerlink" href="#id4" title="このヘッドラインへのパーマリンク">#</a></h2>
+<p>論文：Semi-Supervised Classification with Graph Convolutional Networks</p>
+<p>著者：Thomas N. Kipf, Max Welling</p>
+<p>会議：ICLR 2017 <a class="reference external" href="https://arxiv.org/abs/1609.02907">https://arxiv.org/abs/1609.02907</a></p>
 </section>
 </section>
 
@@ -372,8 +455,8 @@ title="Print to PDF"
     {
         requestKernel: true,
         binderOptions: {
-            repo: "yuya-s/GNNDojo",
-            ref: "master",
+            repo: "yuya-s/GraphDojo",
+            ref: "main",
         },
         codeMirrorConfig: {
             theme: "abcdef",
