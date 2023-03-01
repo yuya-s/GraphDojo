@@ -1,6 +1,6 @@
 # SGC
 
-**SGC**はGCNの処理を簡易にすることで学習の効率化を目指したGNNです．
+$\def\bm{\boldsymbol}$**SGC**はGCNの処理を簡易にすることで学習の効率化を目指したGNNです．
 
 ## SGCの理論
 
