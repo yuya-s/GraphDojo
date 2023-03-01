@@ -1,7 +1,7 @@
 # Book settings
 # Learn more at https://jupyterbook.org/customize/config.html
 
-title: GNN道場
+title: グラフ道場
 author: ""
 copyright: "2023 by 佐々木 勇和 (Yuya Sasaki), クリエイティブ・コモンズ 表示 - 非営利 - 改変禁止 4.0 国際 (CC BY-NC-ND 4.0)"
 exclude_patterns: [_build, material, pdf, README.md, .DS_Store]
@@ -48,7 +48,7 @@ html:
   extra_footer              : ""  # Will be displayed underneath the footer.
   google_analytics_id       : "G-6WBZWZJR97"  # A GA id that can be used to track book views.
   home_page_in_navbar       : false  # Whether to include your home page in the left Navigation Bar
-  baseurl                   : "https://yuya-s.github.io/GNNDojo/"  # The base URL where your book will be hosted. Used for creating image previews and social links. e.g.: https://mypage.com/mybook/
+  baseurl                   : "https://yuya-s.github.io/GraphDojo/"  # The base URL where your book will be hosted. Used for creating image previews and social links. e.g.: https://mypage.com/mybook/
   comments:
     hypothesis              : false
     utterances              : false
@@ -64,8 +64,8 @@ launch_buttons:
   colab_url                 : "https://colab.research.google.com" # The URL of Google Colab (https://colab.research.google.com)
 
 repository:
-  url: "https://github.com/yuya-s/GNNDojo"
-  branch: master
+  url: "https://github.com/yuya-s/GraphDojo"
+  branch: main
 
 bibtex_bibfiles:
   - references.bib

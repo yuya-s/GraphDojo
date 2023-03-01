@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>GAT &#8212; GNN道場</title>
+    <title>GAT &#8212; グラフ道場</title>
     
   <!-- Loaded before other Sphinx assets -->
   <link href="_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
@@ -51,7 +51,9 @@ const thebe_selector_input = "pre"
 const thebe_selector_output = ".output, .cell_output"
 </script>
     <script async="async" src="_static/sphinx-thebe.js"></script>
-    <link rel="canonical" href="https://yuya-s.github.io/GNNDojo/02GAT.html" />
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-svg.js"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <link rel="canonical" href="https://yuya-s.github.io/GraphDojo/02GAT.html" />
     <link rel="index" title="索引" href="genindex.html" />
     <link rel="search" title="検索" href="search.html" />
     <link rel="next" title="SGC" href="03SGC.html" />
@@ -102,7 +104,7 @@ const thebe_selector_output = ".output, .cell_output"
       
       
       
-      <h1 class="site-logo" id="site-title">GNN道場</h1>
+      <h1 class="site-logo" id="site-title">グラフ道場</h1>
       
     </a>
 </div><form class="bd-search d-flex align-items-center" action="search.html" method="get">
@@ -124,6 +126,11 @@ const thebe_selector_output = ".output, .cell_output"
  <li class="toctree-l1">
   <a class="reference internal" href="03SGC.html">
    SGC
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notation.html">
+   表記
   </a>
  </li>
 </ul>
@@ -199,7 +206,7 @@ title="Fullscreen mode"
   <div class="menu-dropdown__content">
     <ul>
       <li>
-        <a href="https://github.com/yuya-s/GNNDojo"
+        <a href="https://github.com/yuya-s/GraphDojo"
    class="headerbtn"
    data-toggle="tooltip"
 data-placement="left"
@@ -216,7 +223,7 @@ title="Source repository"
       </li>
       
       <li>
-        <a href="https://github.com/yuya-s/GNNDojo/issues/new?title=Issue%20on%20page%20%2F02GAT.html&body=Your%20issue%20content%20here."
+        <a href="https://github.com/yuya-s/GraphDojo/issues/new?title=Issue%20on%20page%20%2F02GAT.html&body=Your%20issue%20content%20here."
    class="headerbtn"
    data-toggle="tooltip"
 data-placement="left"
@@ -281,12 +288,51 @@ title="Print to PDF"
     </ul>
   </div>
 </div>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
 
     </div>
 </div>
 
 <!-- Table of contents -->
 <div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#id1">
+   GATの理論
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#id2">
+   GATの実装
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#id3">
+   GATのポイント
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#id4">
+   GATの文献
+  </a>
+ </li>
+</ul>
+
+    </nav>
 </div>
     </div>
     <div class="article row">
@@ -298,6 +344,34 @@ title="Print to PDF"
                 <div id="print-main-content">
                     <div id="jb-print-toc">
                         
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#id1">
+   GATの理論
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#id2">
+   GATの実装
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#id3">
+   GATのポイント
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#id4">
+   GATの文献
+  </a>
+ </li>
+</ul>
+
+                        </nav>
                     </div>
                 </div>
             </div>
@@ -307,15 +381,109 @@ title="Print to PDF"
                 
   <section class="tex2jax_ignore mathjax_ignore" id="gat">
 <h1>GAT<a class="headerlink" href="#gat" title="このヘッドラインへのパーマリンク">#</a></h1>
-<p><strong>GAT</strong>は隣接する節点の中でも重要なものと重要ではないものがいるという考えのもと，誰が重要かなのかも学習するGraph neural networkです．基本的な部分はGCNと大きな差はありませんが，学習するパラメータがかなり増えます．</p>
+<p><strong>GAT</strong>は隣接する節点の中でも重要なものと重要ではないものがいるという考えのもと，どれが重要なのかも学習するGraph neural networkです．基本的な部分はGCNと大きな差はありません．</p>
+<section id="id1">
+<h2>GATの理論<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">#</a></h2>
+<p>GATでは隣接節点からの特徴量を集約する際に重要度<span class="math notranslate nohighlight">\(\alpha\)</span>(アテンション)を掛けます．</p>
+<p><span class="math notranslate nohighlight">\(\bm{H}_v^{(l+1)}=\sigma(\sum_{u \in \mathbb{N}_v\cup v}\alpha_{vu} \bm{H}_u \bm{W}^{(l)})\)</span></p>
+<p><span class="math notranslate nohighlight">\(\alpha_{vu}\)</span>がどういう計算になるかというと，</p>
+<p><span class="math notranslate nohighlight">\(\alpha_{vu}=\frac{exp(LeakyReLU(\bm{a}(\bm{W}\bm{H}_v||\bm{W}\bm{H}_u)))}{exp(\sum_{m\in \mathbb{N}_v}LeakyReLU(\bm{a}(\bm{W}\bm{H}_v||\bm{W}\bm{H}_m)))}\)</span></p>
+<p>となります．</p>
+<p>ポイントは<span class="math notranslate nohighlight">\(LeakyReLU(\bm{a}(\bm{W}\bm{H}_v||\bm{W}\bm{H}_u))\)</span>部分です．分子と分母がややこしいですが，ソフトマックス関数を用いて，節点<span class="math notranslate nohighlight">\(v\)</span>にとっての節点<span class="math notranslate nohighlight">\(u\)</span>の重要度を[0,1]にしているだけです．</p>
+<p><span class="math notranslate nohighlight">\(LeakyReLU(\bm{a}(\bm{W}\bm{H}_v||\bm{W}\bm{H}_u))\)</span>を解説すると，<span class="math notranslate nohighlight">\(\bm{a}\)</span>はベクトルをスカラーに変更する学習パラメータで，<span class="math notranslate nohighlight">\(\bm{H}_v\)</span>と<span class="math notranslate nohighlight">\(\bm{H}_u\)</span>を学習パラメータ<span class="math notranslate nohighlight">\(\bm{W}\)</span>により線形変換しています．これにより，<strong>よしなに</strong>節点の重要度を学習します．</p>
+<p>さらに，GATでは複数のアテンションを用いるマルチヘッドアテンションが採用されています．</p>
+<p><span class="math notranslate nohighlight">\(\bm{H}_v^{(l+1)}=||_{k=1}^K\sigma(\sum_{u \in \mathbb{N}_v\cup v}\alpha_{vu} \bm{H}_u \bm{W}^{(l)})\)</span></p>
+<p>これにより，複数種類の重要度を学習することを狙っています．
+一点注意点として，<span class="math notranslate nohighlight">\(K\)</span>個の特徴量を結合しているためl+1番目の層の特徴量のサイズが大きくなります．</p>
+</section>
+<section id="id2">
+<h2>GATの実装<a class="headerlink" href="#id2" title="このヘッドラインへのパーマリンク">#</a></h2>
+<p>GAT層の実装例は以下となります．</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">GraphAttentionLayer</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">in_features</span><span class="p">,</span> <span class="n">out_features</span><span class="p">,</span> <span class="n">dropout</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">concat</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">GraphAttentionLayer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span> <span class="o">=</span> <span class="n">dropout</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">in_features</span> <span class="o">=</span> <span class="n">in_features</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out_features</span> <span class="o">=</span> <span class="n">out_features</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span> <span class="o">=</span> <span class="n">alpha</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">concat</span> <span class="o">=</span> <span class="n">concat</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">W</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="n">in_features</span><span class="p">,</span> <span class="n">out_features</span><span class="p">)))</span>
+        <span class="n">nn</span><span class="o">.</span><span class="n">init</span><span class="o">.</span><span class="n">xavier_uniform_</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">W</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">gain</span><span class="o">=</span><span class="mf">1.414</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">a</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">out_features</span><span class="p">,</span> <span class="mi">1</span><span class="p">)))</span>
+        <span class="n">nn</span><span class="o">.</span><span class="n">init</span><span class="o">.</span><span class="n">xavier_uniform_</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">gain</span><span class="o">=</span><span class="mf">1.414</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">leakyrelu</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">LeakyReLU</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alpha</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">adj</span><span class="p">):</span>
+        <span class="n">Wh</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">mm</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">W</span><span class="p">)</span> <span class="c1"># h.shape: (N, in_features), Wh.shape: (N, out_features)</span>
+        <span class="n">e</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_attentional_mechanism_input</span><span class="p">(</span><span class="n">Wh</span><span class="p">)</span>
+
+        <span class="n">zero_vec</span> <span class="o">=</span> <span class="o">-</span><span class="mf">9e15</span><span class="o">*</span><span class="n">torch</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="n">attention</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">adj</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="n">zero_vec</span><span class="p">)</span>
+        <span class="n">attention</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">attention</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">attention</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">dropout</span><span class="p">(</span><span class="n">attention</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">training</span><span class="p">)</span>
+        <span class="n">h_prime</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">attention</span><span class="p">,</span> <span class="n">Wh</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">concat</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">F</span><span class="o">.</span><span class="n">elu</span><span class="p">(</span><span class="n">h_prime</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">h_prime</span>
+
+    <span class="k">def</span> <span class="nf">_prepare_attentional_mechanism_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Wh</span><span class="p">):</span>
+        <span class="c1"># Wh.shape (N, out_feature)</span>
+        <span class="c1"># self.a.shape (2 * out_feature, 1)</span>
+        <span class="c1"># Wh1&amp;2.shape (N, 1)</span>
+        <span class="c1"># e.shape (N, N)</span>
+        <span class="n">Wh1</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">Wh</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">[:</span><span class="bp">self</span><span class="o">.</span><span class="n">out_features</span><span class="p">,</span> <span class="p">:])</span>
+        <span class="n">Wh2</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">Wh</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">out_features</span><span class="p">:,</span> <span class="p">:])</span>
+        <span class="c1"># broadcast add</span>
+        <span class="n">e</span> <span class="o">=</span> <span class="n">Wh1</span> <span class="o">+</span> <span class="n">Wh2</span><span class="o">.</span><span class="n">T</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">leakyrelu</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">+</span> <span class="s1">&#39; (&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">in_features</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39; -&gt; &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">out_features</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;)&#39;</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">GAT</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nfeat</span><span class="p">,</span> <span class="n">nhid</span><span class="p">,</span> <span class="n">nclass</span><span class="p">,</span> <span class="n">dropout</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">nheads</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Dense version of GAT.&quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">GAT</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span> <span class="o">=</span> <span class="n">dropout</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">attentions</span> <span class="o">=</span> <span class="p">[</span><span class="n">GraphAttentionLayer</span><span class="p">(</span><span class="n">nfeat</span><span class="p">,</span> <span class="n">nhid</span><span class="p">,</span> <span class="n">dropout</span><span class="o">=</span><span class="n">dropout</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span> <span class="n">concat</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nheads</span><span class="p">)]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">attention</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attentions</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_module</span><span class="p">(</span><span class="s1">&#39;attention_</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="n">attention</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">out_att</span> <span class="o">=</span> <span class="n">GraphAttentionLayer</span><span class="p">(</span><span class="n">nhid</span> <span class="o">*</span> <span class="n">nheads</span><span class="p">,</span> <span class="n">nclass</span><span class="p">,</span> <span class="n">dropout</span><span class="o">=</span><span class="n">dropout</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span> <span class="n">concat</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">adj</span><span class="p">):</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">dropout</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">training</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">att</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">adj</span><span class="p">)</span> <span class="k">for</span> <span class="n">att</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">attentions</span><span class="p">],</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">dropout</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">training</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">elu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">out_att</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">adj</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">F</span><span class="o">.</span><span class="n">log_softmax</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="id3">
+<h2>GATのポイント<a class="headerlink" href="#id3" title="このヘッドラインへのパーマリンク">#</a></h2>
+<p>周囲の節点の特徴量の重要度（アテンション）を学習することで，一様な集約ではない特徴量の集約を可能とする．</p>
+</section>
+<section id="id4">
+<h2>GATの文献<a class="headerlink" href="#id4" title="このヘッドラインへのパーマリンク">#</a></h2>
+<p>論文：Graph Attention Networks</p>
+<p>著者：Petar Veličković, Guillem Cucurull, Arantxa Casanova, Adriana Romero, Pietro Liò, Yoshua Bengio</p>
+<p>会議：ICLR 2018 <a class="reference external" href="https://arxiv.org/abs/1609.02907">https://arxiv.org/abs/1609.02907</a></p>
+</section>
 </section>
 
     <script type="text/x-thebe-config">
     {
         requestKernel: true,
         binderOptions: {
-            repo: "yuya-s/GNNDojo",
-            ref: "master",
+            repo: "yuya-s/GraphDojo",
+            ref: "main",
         },
         codeMirrorConfig: {
             theme: "abcdef",
