@@ -6,7 +6,7 @@ $\def\bm{\boldsymbol}$**GCN**は最も基礎的で直観的に理解しやすい
 
 GCNは下記の式で表すことができます．
 
-$\bm{H}^{(l+1)} = \sigma(\bm{D}'^{-\frac{1}{2}}\bm{A}'\bm{D}'^{-\frac{1}{2}}\bm{H}^{(l)}\bm{W}^{(l)}) $
+$\bm{H}^{(l+1)} = \sigma(\bm{D}'^{-\frac{1}{2}}\bm{S}'\bm{D}'^{-\frac{1}{2}}\bm{H}^{(l)}\bm{W}^{(l)}) $
 
 ここで，$\bm{H}^{(0)}=\bm{X}$になります．
 
@@ -15,13 +15,16 @@ $\bm{H}^{(l+1)} = \sigma(\bm{D}'^{-\frac{1}{2}}\bm{A}'\bm{D}'^{-\frac{1}{2}}\bm{
 
 $\bm{H}_v^{(l+1)}=\sigma(\sum_{u \in \mathbb{N}_v\cup v}\frac{1}{\sqrt{d_vd_u}}\bm{H}_u \bm{W}^{(l)})$
 
+GCNのイメージは周りからembeddingを集めてNNを通してembeddingを生成して，またそのembeddingを渡すということを繰り返します．オリジナルのGCNは2層から構成されていて，経験的にも2層が最適になることが多いです．
+
+![picture 1](./images/GCN.png)
 
 ## GCNの実装
+[code](https://colab.research.google.com/drive/1X0SsiXWR63XyXISOWYTRL5gSnGcGvcdE?usp=sharing)
 
+GCNの実装では$\bm{D}'^{-\frac{1}{2}}\bm{S}'\bm{D}'^{-\frac{1}{2}}$の部分は学習に関係ないため事前に計算します．
 
-GCNの実装では$\bm{D}'^{-\frac{1}{2}}\bm{A}'\bm{D}'^{-\frac{1}{2}}$の部分は学習に関係ないため事前に計算します．
-
-学習時には，$\bm{D}'^{-\frac{1}{2}}\bm{A}'\bm{D}'^{-\frac{1}{2}}$，$\bm{H}^{(l)}$および，$\bm{W}^{(l)}$を行列積することがGCN layerの処理になります．
+学習時には，$\bm{D}'^{-\frac{1}{2}}\bm{S}'\bm{D}'^{-\frac{1}{2}}$，$\bm{H}^{(l)}$および，$\bm{W}^{(l)}$を行列積することがGCN layerの処理になります．
 
 下記が実装例です．この実装では，バイアス項の有無を設定できるようにしています．
 
@@ -77,8 +80,5 @@ class GCN(nn.Module):
 
 ## 文献
 
-論文：Semi-Supervised Classification with Graph Convolutional Networks
-
-著者：Thomas N. Kipf, Max Welling
-
-会議：ICLR 2017 https://arxiv.org/abs/1609.02907
+Thomas N. Kipf and Max Welling, "Semi-Supervised Classification with Graph Convolutional Networks",
+ICLR 2017 https://arxiv.org/abs/1609.02907
