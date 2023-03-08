@@ -53,7 +53,7 @@ const thebe_selector_output = ".output, .cell_output"
     <script async="async" src="_static/sphinx-thebe.js"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-svg.js"></script>
     <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
-    <link rel="canonical" href="https://yuya-s.github.io/GraphDojo/01GCN.html" />
+    <link rel="canonical" href="https://yuya-s.github.io/GNNDojo/01GCN.html" />
     <link rel="index" title="索引" href="genindex.html" />
     <link rel="search" title="検索" href="search.html" />
     <link rel="next" title="GAT" href="02GAT.html" />
@@ -385,15 +385,18 @@ title="Print to PDF"
 <section id="id1">
 <h2>GCNの理論<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">#</a></h2>
 <p>GCNは下記の式で表すことができます．</p>
-<p><span class="math notranslate nohighlight">\(\bm{H}^{(l+1)} = \sigma(\bm{D}'^{-\frac{1}{2}}\bm{A}'\bm{D}'^{-\frac{1}{2}}\bm{H}^{(l)}\bm{W}^{(l)}) \)</span></p>
+<p><span class="math notranslate nohighlight">\(\bm{H}^{(l+1)} = \sigma(\bm{D}'^{-\frac{1}{2}}\bm{S}'\bm{D}'^{-\frac{1}{2}}\bm{H}^{(l)}\bm{W}^{(l)}) \)</span></p>
 <p>ここで，<span class="math notranslate nohighlight">\(\bm{H}^{(0)}=\bm{X}\)</span>になります．</p>
 <p>あるひとつの節点<span class="math notranslate nohighlight">\(v\)</span>の特徴量で考えると下記になります．</p>
 <p><span class="math notranslate nohighlight">\(\bm{H}_v^{(l+1)}=\sigma(\sum_{u \in \mathbb{N}_v\cup v}\frac{1}{\sqrt{d_vd_u}}\bm{H}_u \bm{W}^{(l)})\)</span></p>
+<p>GCNのイメージは周りからembeddingを集めてNNを通してembeddingを生成して，またそのembeddingを渡すということを繰り返します．オリジナルのGCNは2層から構成されていて，経験的にも2層が最適になることが多いです．</p>
+<p><img alt="picture 1" src="_images/GCN.png" /></p>
 </section>
 <section id="id2">
 <h2>GCNの実装<a class="headerlink" href="#id2" title="このヘッドラインへのパーマリンク">#</a></h2>
-<p>GCNの実装では<span class="math notranslate nohighlight">\(\bm{D}'^{-\frac{1}{2}}\bm{A}'\bm{D}'^{-\frac{1}{2}}\)</span>の部分は学習に関係ないため事前に計算します．</p>
-<p>学習時には，<span class="math notranslate nohighlight">\(\bm{D}'^{-\frac{1}{2}}\bm{A}'\bm{D}'^{-\frac{1}{2}}\)</span>，<span class="math notranslate nohighlight">\(\bm{H}^{(l)}\)</span>および，<span class="math notranslate nohighlight">\(\bm{W}^{(l)}\)</span>を行列積することがGCN layerの処理になります．</p>
+<p><a class="reference external" href="https://colab.research.google.com/drive/1X0SsiXWR63XyXISOWYTRL5gSnGcGvcdE?usp=sharing">code</a></p>
+<p>GCNの実装では<span class="math notranslate nohighlight">\(\bm{D}'^{-\frac{1}{2}}\bm{S}'\bm{D}'^{-\frac{1}{2}}\)</span>の部分は学習に関係ないため事前に計算します．</p>
+<p>学習時には，<span class="math notranslate nohighlight">\(\bm{D}'^{-\frac{1}{2}}\bm{S}'\bm{D}'^{-\frac{1}{2}}\)</span>，<span class="math notranslate nohighlight">\(\bm{H}^{(l)}\)</span>および，<span class="math notranslate nohighlight">\(\bm{W}^{(l)}\)</span>を行列積することがGCN layerの処理になります．</p>
 <p>下記が実装例です．この実装では，バイアス項の有無を設定できるようにしています．</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">GCNLayer</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">in_features</span><span class="p">,</span> <span class="n">out_features</span><span class="p">,</span> <span class="n">use_bias</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
@@ -445,9 +448,8 @@ title="Print to PDF"
 </section>
 <section id="id4">
 <h2>文献<a class="headerlink" href="#id4" title="このヘッドラインへのパーマリンク">#</a></h2>
-<p>論文：Semi-Supervised Classification with Graph Convolutional Networks</p>
-<p>著者：Thomas N. Kipf, Max Welling</p>
-<p>会議：ICLR 2017 <a class="reference external" href="https://arxiv.org/abs/1609.02907">https://arxiv.org/abs/1609.02907</a></p>
+<p>Thomas N. Kipf and Max Welling, &quot;Semi-Supervised Classification with Graph Convolutional Networks&quot;,
+ICLR 2017 <a class="reference external" href="https://arxiv.org/abs/1609.02907">https://arxiv.org/abs/1609.02907</a></p>
 </section>
 </section>
 

@@ -53,7 +53,7 @@ const thebe_selector_output = ".output, .cell_output"
     <script async="async" src="_static/sphinx-thebe.js"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-svg.js"></script>
     <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
-    <link rel="canonical" href="https://yuya-s.github.io/GraphDojo/03SGC.html" />
+    <link rel="canonical" href="https://yuya-s.github.io/GNNDojo/03SGC.html" />
     <link rel="index" title="索引" href="genindex.html" />
     <link rel="search" title="検索" href="search.html" />
     <link rel="next" title="表記" href="notation.html" />
@@ -377,19 +377,28 @@ title="Print to PDF"
 <p>GCNでは隣接する節点の集約という処理を逐一実行しなければいけませんでした．逐一処理しなければいけない原因は活性化関数の存在です．活性化関数があるせいで集約の事前計算ができませんでした．</p>
 <p>SGCでは活性化関数を全て取り除き，事前に特徴量を集約し，線形層での学習を行うという処理を行います．</p>
 <p>SGCは下記の数式で表すことができます．</p>
-<p><span class="math notranslate nohighlight">\(\bm{H}=\bm{A}^k\bm{X}\bm{W}\)</span></p>
+<p><span class="math notranslate nohighlight">\(\bm{H}=(\bm{D}'^{-\frac{1}{2}}\bm{S}'\bm{D}'^{-\frac{1}{2}})^k\bm{X}\bm{W}\)</span></p>
 <p><span class="math notranslate nohighlight">\(k\)</span>はGCNにおける畳込み回数に相当します．</p>
 <p>非常に簡単な式ですが，学習も高速，精度もGCNとそれほど変わらないという結果が報告されています．</p>
+<p>SGCのイメージはホップ数分畳込みした後のみに重みパラメータかけるということにつきます．これにより，学習時の畳込みが不要になり学習速度があがります．</p>
+<p><img alt="picture 1" src="_images/SGC.png" /></p>
 </section>
 <section id="id2">
 <h2>SGCの実装<a class="headerlink" href="#id2" title="このヘッドラインへのパーマリンク">#</a></h2>
-<p>準備中です．</p>
+<p><span class="math notranslate nohighlight">\(\bm{D}'^{-\frac{1}{2}}\bm{S}'\bm{D}'^{-\frac{1}{2}}\)</span>を<span class="math notranslate nohighlight">\(k\)</span>回掛けた後にMLPにわたすという処理になります．ここまでのGCNとGATの実装と下記を参考に実装してみましょう．</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MLP</span> <span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_features</span><span class="p">,</span> <span class="n">hidden_dim</span><span class="p">,</span> <span class="n">num_classes</span><span class="p">,</span> <span class="n">dropout</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">MLP</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fc</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">node_features</span><span class="p">,</span> <span class="n">hidden_dim</span><span class="p">)</span>   
+        
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fc</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</pre></div>
+</div>
 </section>
 <section id="id3">
 <h2>SGCの文献<a class="headerlink" href="#id3" title="このヘッドラインへのパーマリンク">#</a></h2>
-<p>論文：Simplifying Graph Convolutional Networks</p>
-<p>著者：Felix Wu, Tianyi Zhang, Amauri Holanda de Souza Jr., Christopher Fifty, Tao Yu, Kilian Q. Weinberger</p>
-<p>会議：ICML 2019 <a class="reference external" href="https://arxiv.org/abs/1902.07153">https://arxiv.org/abs/1902.07153</a></p>
+<p>Felix Wu, Tianyi Zhang, Amauri Holanda de Souza Jr., Christopher Fifty, Tao Yu, Kilian Q. Weinberger, &quot;Simplifying Graph Convolutional Networks&quot;, ICML 2019 <a class="reference external" href="https://arxiv.org/abs/1902.07153">https://arxiv.org/abs/1902.07153</a></p>
 </section>
 </section>
 
