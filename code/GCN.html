@@ -1,0 +1,1246 @@
+
+<!DOCTYPE html>
+
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>GCN実装 &#8212; グラフ道場</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" href="../_static/styles/sphinx-book-theme.css?digest=5115cc725059bd94278eecd172e13a965bf8f5a9" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-thebe.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/design-style.b7bb847fb20b106c3d81b95245e65545.min.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?digest=9c920249402e914e316237a7dbc6769907cce411"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../_static/togglebutton.js"></script>
+    <script src="../_static/translations.js"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    <script src="../_static/design-tabs.js"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"
+const thebe_selector = ".thebe,.cell"
+const thebe_selector_input = "pre"
+const thebe_selector_output = ".output, .cell_output"
+</script>
+    <script async="async" src="../_static/sphinx-thebe.js"></script>
+    <link rel="canonical" href="https://yuya-s.github.io/GNNDojo/code/GCN.html" />
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="検索" href="../search.html" />
+    <link rel="next" title="GAT実装" href="GAT.html" />
+    <link rel="prev" title="SGC" href="../03SGC.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="ja">
+    
+
+    <!-- Google Analytics -->
+    
+<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-6WBZWZJR97"></script>
+<script>
+                    window.dataLayer = window.dataLayer || [];
+                    function gtag(){ dataLayer.push(arguments); }
+                    gtag('js', new Date());
+                    gtag('config', 'G-6WBZWZJR97');
+                </script>
+
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../index.html">
+      
+      
+      
+      <h1 class="site-logo" id="site-title">グラフ道場</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search this book..." aria-label="Search this book..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item active">
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  理論
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../01GCN.html">
+   GCN
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../02GAT.html">
+   GAT
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../03SGC.html">
+   SGC
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  実装
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1 current active">
+  <a class="current reference internal" href="#">
+   GCN実装
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="GAT.html">
+   GAT実装
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  付録
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notation.html">
+   表記
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            Powered by <a href="https://jupyterbook.org">Jupyter Book</a>
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<div class="menu-dropdown menu-dropdown-launch-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Launch interactive content">
+      <i class="fas fa-rocket"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="https://colab.research.google.com/github/yuya-s/GraphDojo/blob/master/code/GCN.ipynb"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Launch on Colab"
+>
+  
+
+<span class="headerbtn__icon-container">
+  
+    <img src="../_static/images/logo_colab.png">
+  </span>
+<span class="headerbtn__text-container">Colab</span>
+</a>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+<div class="menu-dropdown menu-dropdown-repository-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Source repositories">
+      <i class="fab fa-github"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="https://github.com/yuya-s/GraphDojo"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Source repository"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="headerbtn__text-container">repository</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/yuya-s/GraphDojo/issues/new?title=Issue%20on%20page%20%2Fcode/GCN.html&body=Your%20issue%20content%20here."
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Open an issue"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="headerbtn__text-container">open issue</span>
+</a>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+<div class="menu-dropdown menu-dropdown-download-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Download this page">
+      <i class="fas fa-download"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="../_sources/code/GCN.ipynb"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Download source file"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="headerbtn__text-container">.ipynb</span>
+</a>
+
+      </li>
+      
+      <li>
+        
+<button onclick="printPdf(this)"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="left"
+title="Print to PDF"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="headerbtn__text-container">.pdf</span>
+</button>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#">
+   GCN実装
+  </a>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#id1">
+   ライブラリのインストール
+  </a>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#id2">
+   モデル定義
+  </a>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#id3">
+   グラフデータ読み込み
+  </a>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#id4">
+   学習準備
+  </a>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#id5">
+   モデル学習
+  </a>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#id6">
+   テスト精度の検証
+  </a>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#id7">
+   結果の描画
+  </a>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#id8">
+   課題
+  </a>
+ </li>
+</ul>
+
+    </nav>
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>GCN実装</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#">
+   GCN実装
+  </a>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#id1">
+   ライブラリのインストール
+  </a>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#id2">
+   モデル定義
+  </a>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#id3">
+   グラフデータ読み込み
+  </a>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#id4">
+   学習準備
+  </a>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#id5">
+   モデル学習
+  </a>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#id6">
+   テスト精度の検証
+  </a>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#id7">
+   結果の描画
+  </a>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#id8">
+   課題
+  </a>
+ </li>
+</ul>
+
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <section class="tex2jax_ignore mathjax_ignore" id="gcn">
+<h1>GCN実装<a class="headerlink" href="#gcn" title="このヘッドラインへのパーマリンク">#</a></h1>
+<p>論文：Semi-Supervised Classification with Graph Convolutional Networks
+Thomas N. Kipf, Max Welling</p>
+<p>ICLR 2017 <a class="reference external" href="https://arxiv.org/abs/1609.02907">https://arxiv.org/abs/1609.02907</a></p>
+<p>参考コード：<a class="reference external" href="https://github.com/senadkurtisi/pytorch-GCN">https://github.com/senadkurtisi/pytorch-GCN</a></p>
+<p><strong>全体の流れ</strong></p>
+<ol class="simple">
+<li><p>事前にcora.contentとcora.citesをダウンロードして/content/drive/My Drive/Colab Notebooks/に置いてください．</p></li>
+<li><p>ライブラリのインストール</p></li>
+<li><p>GCNモデル定義 (NN実装がわかる人はここの参照のみで十分)</p></li>
+<li><p>グラフデータ読み込み</p></li>
+<li><p>学習準備</p></li>
+<li><p>モデル学習</p></li>
+<li><p>テスト精度検証</p></li>
+<li><p>結果の描画</p></li>
+</ol>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="id1">
+<h1>ライブラリのインストール<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">#</a></h1>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torch.nn</span> <span class="k">as</span> <span class="nn">nn</span>
+<span class="kn">import</span> <span class="nn">torch.nn.functional</span> <span class="k">as</span> <span class="nn">F</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">sklearn.manifold</span> <span class="kn">import</span> <span class="n">TSNE</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">scipy.sparse</span> <span class="k">as</span> <span class="nn">sparse</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">google.colab</span> <span class="kn">import</span> <span class="n">drive</span>
+<span class="n">drive</span><span class="o">.</span><span class="n">mount</span><span class="p">(</span><span class="s1">&#39;/content/drive&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Drive already mounted at /content/drive; to attempt to forcibly remount, call drive.mount(&quot;/content/drive&quot;, force_remount=True).
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="id2">
+<h1>モデル定義<a class="headerlink" href="#id2" title="このヘッドラインへのパーマリンク">#</a></h1>
+<p>GCN層を定義</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">GCNLayer</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">in_features</span><span class="p">,</span> <span class="n">out_features</span><span class="p">,</span> <span class="n">use_bias</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">GCNLayer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">weight</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">FloatTensor</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="n">in_features</span><span class="p">,</span> <span class="n">out_features</span><span class="p">))))</span>
+        <span class="k">if</span> <span class="n">use_bias</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bias</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">FloatTensor</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="n">out_features</span><span class="p">,))))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">register_parameter</span><span class="p">(</span><span class="s1">&#39;bias&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">initialize_weights</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">initialize_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">nn</span><span class="o">.</span><span class="n">init</span><span class="o">.</span><span class="n">xavier_uniform_</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">weight</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">bias</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">init</span><span class="o">.</span><span class="n">zeros_</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bias</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">adj</span><span class="p">):</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">@</span> <span class="bp">self</span><span class="o">.</span><span class="n">weight</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">bias</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bias</span>
+
+        <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">mm</span><span class="p">(</span><span class="n">adj</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>GCNモデルを定義．今回は2層のGCN．</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">GCN</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_features</span><span class="p">,</span> <span class="n">hidden_dim</span><span class="p">,</span> <span class="n">num_classes</span><span class="p">,</span> <span class="n">dropout</span><span class="p">,</span> <span class="n">use_bias</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">GCN</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gcn_1</span> <span class="o">=</span> <span class="n">GCNLayer</span><span class="p">(</span><span class="n">node_features</span><span class="p">,</span> <span class="n">hidden_dim</span><span class="p">,</span> <span class="n">use_bias</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gcn_2</span> <span class="o">=</span> <span class="n">GCNLayer</span><span class="p">(</span><span class="n">hidden_dim</span><span class="p">,</span> <span class="n">num_classes</span><span class="p">,</span> <span class="n">use_bias</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="n">p</span><span class="o">=</span><span class="n">dropout</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">initialize_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gcn_1</span><span class="o">.</span><span class="n">initialize_weights</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gcn_2</span><span class="o">.</span><span class="n">initialize_weights</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">adj</span><span class="p">):</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gcn_1</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">adj</span><span class="p">))</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gcn_2</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">adj</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">x</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>他のモデルも定義可能．以下は1層のGCNモデル．</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">GCN1</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_features</span><span class="p">,</span> <span class="n">hidden_dim</span><span class="p">,</span> <span class="n">num_classes</span><span class="p">,</span> <span class="n">dropout</span><span class="p">,</span> <span class="n">use_bias</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">GCN</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gcn_1</span> <span class="o">=</span> <span class="n">GCNLayer</span><span class="p">(</span><span class="n">node_features</span><span class="p">,</span> <span class="n">hidden_dim</span><span class="p">,</span> <span class="n">use_bias</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">initialize_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gcn_1</span><span class="o">.</span><span class="n">initialize_weights</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">adj</span><span class="p">):</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gcn_1</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">adj</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">x</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="id3">
+<h1>グラフデータ読み込み<a class="headerlink" href="#id3" title="このヘッドラインへのパーマリンク">#</a></h1>
+<p>各ノードの情報cora.contentを読み込み
+データの内容を具体的に確認したい場合，print文のコメントアウトを外してください．</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Loading Cora dataset...&quot;</span><span class="p">)</span>
+<span class="n">raw_nodes_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">genfromtxt</span><span class="p">(</span><span class="s1">&#39;/content/drive/My Drive/Colab Notebooks/cora.content&#39;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;str&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">raw_nodes_data</span><span class="p">)</span>
+<span class="n">raw_node_ids</span> <span class="o">=</span> <span class="n">raw_nodes_data</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;int32&#39;</span><span class="p">)</span>  <span class="c1"># 各行の一列目に格納されてるノードIDを抽出</span>
+<span class="c1">#print(raw_node_ids)</span>
+<span class="n">raw_node_labels</span> <span class="o">=</span> <span class="n">raw_nodes_data</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="c1"># 各行の最終列に格納されてるラベルを抽出．このラベルが予測ターゲット</span>
+<span class="c1">#print(raw_node_labels)</span>
+
+<span class="n">unique</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">raw_node_labels</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">unique</span><span class="p">)</span>
+<span class="n">labels_enumerated</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">unique</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">label</span><span class="p">)</span> <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">raw_node_labels</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">labels_enumerated</span><span class="p">)</span>
+<span class="n">node_features</span> <span class="o">=</span> <span class="n">sparse</span><span class="o">.</span><span class="n">csr_matrix</span><span class="p">(</span><span class="n">raw_nodes_data</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float32&quot;</span><span class="p">)</span>
+<span class="c1">#print(node_features)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Loading Cora dataset...
+[[&#39;31336&#39; &#39;0&#39; &#39;0&#39; ... &#39;0&#39; &#39;0&#39; &#39;Neural_Networks&#39;]
+ [&#39;1061127&#39; &#39;0&#39; &#39;0&#39; ... &#39;0&#39; &#39;0&#39; &#39;Rule_Learning&#39;]
+ [&#39;1106406&#39; &#39;0&#39; &#39;0&#39; ... &#39;0&#39; &#39;0&#39; &#39;Reinforcement_Learning&#39;]
+ ...
+ [&#39;1128978&#39; &#39;0&#39; &#39;0&#39; ... &#39;0&#39; &#39;0&#39; &#39;Genetic_Algorithms&#39;]
+ [&#39;117328&#39; &#39;0&#39; &#39;0&#39; ... &#39;0&#39; &#39;0&#39; &#39;Case_Based&#39;]
+ [&#39;24043&#39; &#39;0&#39; &#39;0&#39; ... &#39;0&#39; &#39;0&#39; &#39;Neural_Networks&#39;]]
+[&#39;Theory&#39;, &#39;Probabilistic_Methods&#39;, &#39;Neural_Networks&#39;, &#39;Reinforcement_Learning&#39;, &#39;Case_Based&#39;, &#39;Rule_Learning&#39;, &#39;Genetic_Algorithms&#39;]
+[2 5 3 ... 6 4 2]
+</pre></div>
+</div>
+</div>
+</div>
+<p>グラフの枝情報を読み込み，隣接行列（adjacnecy matrix）を構築する．</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ids_ordered</span> <span class="o">=</span> <span class="p">{</span><span class="n">raw_id</span><span class="p">:</span> <span class="n">order</span> <span class="k">for</span> <span class="n">order</span><span class="p">,</span> <span class="n">raw_id</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">raw_node_ids</span><span class="p">)}</span> <span class="c1">#実際のノードIDを0から節点数-1に対応付け</span>
+<span class="c1">#print(ids_ordered)</span>
+<span class="n">raw_edges_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">genfromtxt</span><span class="p">(</span><span class="s1">&#39;/content/drive/My Drive/Colab Notebooks/cora.cites&#39;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;int32&quot;</span><span class="p">)</span>
+<span class="c1">#print(raw_edges_data)</span>
+<span class="n">edges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">ids_ordered</span><span class="o">.</span><span class="n">get</span><span class="p">,</span> <span class="n">raw_edges_data</span><span class="o">.</span><span class="n">flatten</span><span class="p">())),</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;int32&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">raw_edges_data</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="c1"># 実際のノードIDを変換. reshapeでデータ構造を元の枝ファイルと同様に変更．</span>
+<span class="c1">#print(edges)</span>
+
+<span class="n">adj</span> <span class="o">=</span> <span class="n">sparse</span><span class="o">.</span><span class="n">coo_matrix</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">edges</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="p">(</span><span class="n">edges</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">edges</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">])),</span>
+                        <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">labels_enumerated</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">labels_enumerated</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+                        <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+<span class="c1">#print(adj)</span>
+
+<span class="n">adj</span> <span class="o">=</span> <span class="n">adj</span> <span class="o">+</span> <span class="n">adj</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">adj</span><span class="o">.</span><span class="n">T</span> <span class="o">&gt;</span> <span class="n">adj</span><span class="p">)</span> <span class="c1">#隣接行列を対象に変更 (つまり，無向グラフに変換)</span>
+<span class="c1">#print(adj)</span>
+
+<span class="n">adj</span> <span class="o">=</span> <span class="n">adj</span> <span class="o">+</span> <span class="n">sparse</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">adj</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="c1">#対角成分に1を挿入</span>
+
+<span class="n">node_degrees</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">adj</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span> <span class="c1">#列毎の総和を計算する（つまり，次数を計算する）</span>
+<span class="c1">#print(node_degrees)</span>
+
+<span class="n">node_degrees</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">node_degrees</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.5</span><span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+<span class="c1">#print(node_degrees)</span>
+
+<span class="n">degree_matrix</span> <span class="o">=</span> <span class="n">sparse</span><span class="o">.</span><span class="n">diags</span><span class="p">(</span><span class="n">node_degrees</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">degree_matrix</span><span class="p">)</span>
+
+<span class="n">adj</span> <span class="o">=</span> <span class="n">degree_matrix</span> <span class="o">@</span> <span class="n">adj</span> <span class="o">@</span> <span class="n">degree_matrix</span> <span class="c1">#行列の積を計算．</span>
+<span class="c1">#torch.spmm(degree_matrix,torch.spmm(adj,degree_matrix))</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">adj</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>  (0, 0)	0.4082483
+  (1, 1)	0.70710677
+  (2, 2)	0.4472136
+  (3, 3)	0.5
+  (4, 4)	0.70710677
+  (5, 5)	0.57735026
+  (6, 6)	0.57735026
+  (7, 7)	0.70710677
+  (8, 8)	0.4082483
+  (9, 9)	0.4472136
+  (10, 10)	0.4082483
+  (11, 11)	0.57735026
+  (12, 12)	0.57735026
+  (13, 13)	0.5
+  (14, 14)	0.2236068
+  (15, 15)	0.30151135
+  (16, 16)	0.4472136
+  (17, 17)	0.70710677
+  (18, 18)	0.35355338
+  (19, 19)	0.57735026
+  (20, 20)	0.4082483
+  (21, 21)	0.4472136
+  (22, 22)	0.4082483
+  (23, 23)	0.57735026
+  (24, 24)	0.57735026
+  :	:
+  (2683, 2683)	0.4472136
+  (2684, 2684)	0.70710677
+  (2685, 2685)	0.57735026
+  (2686, 2686)	0.5
+  (2687, 2687)	0.5
+  (2688, 2688)	0.4472136
+  (2689, 2689)	0.57735026
+  (2690, 2690)	0.57735026
+  (2691, 2691)	0.70710677
+  (2692, 2692)	0.5
+  (2693, 2693)	0.70710677
+  (2694, 2694)	0.4472136
+  (2695, 2695)	0.5
+  (2696, 2696)	0.4472136
+  (2697, 2697)	0.4472136
+  (2698, 2698)	0.5
+  (2699, 2699)	0.70710677
+  (2700, 2700)	0.57735026
+  (2701, 2701)	0.57735026
+  (2702, 2702)	0.57735026
+  (2703, 2703)	0.5
+  (2704, 2704)	0.57735026
+  (2705, 2705)	0.4472136
+  (2706, 2706)	0.4472136
+  (2707, 2707)	0.5
+  (0, 0)	0.16666667879725594
+  (0, 8)	0.16666667879725594
+  (0, 14)	0.09128709514657274
+  (0, 258)	0.11785113237134937
+  (0, 435)	0.16666667879725594
+  (0, 544)	0.18257419029314548
+  (1, 1)	0.4999999828857291
+  (1, 344)	0.12499999572143228
+  (2, 2)	0.1999999952104794
+  (2, 410)	0.18257419029314548
+  (2, 471)	0.1581138784091909
+  (2, 552)	0.06819943435231757
+  (2, 565)	0.05031545931958359
+  (3, 3)	0.25
+  (3, 197)	0.22360679507255554
+  (3, 463)	0.20412415266036987
+  (3, 601)	0.20412415266036987
+  (4, 4)	0.4999999828857291
+  (4, 170)	0.4082482761496564
+  (5, 5)	0.33333332136784577
+  (5, 490)	0.2041241380748282
+  (5, 2164)	0.23570226474269873
+  (6, 6)	0.33333332136784577
+  (6, 251)	0.192450092011196
+  (6, 490)	0.2041241380748282
+  :	:
+  (2701, 2701)	0.33333332136784577
+  (2702, 881)	0.14907119430171534
+  (2702, 2624)	0.2041241380748282
+  (2702, 2702)	0.33333332136784577
+  (2703, 1221)	0.25
+  (2703, 1409)	0.1767766922712326
+  (2703, 2200)	0.22360679507255554
+  (2703, 2703)	0.25
+  (2704, 209)	0.28867512941360474
+  (2704, 2407)	0.33333332136784577
+  (2704, 2704)	0.33333332136784577
+  (2705, 1784)	0.1490712011577049
+  (2705, 1839)	0.22360679507255554
+  (2705, 1840)	0.25819888202132546
+  (2705, 2216)	0.22360679507255554
+  (2705, 2705)	0.1999999952104794
+  (2706, 1046)	0.18257419029314548
+  (2706, 1138)	0.16903084614948405
+  (2706, 1640)	0.16903084614948405
+  (2706, 1752)	0.3162277568183818
+  (2706, 2706)	0.1999999952104794
+  (2707, 774)	0.25
+  (2707, 1389)	0.22360679507255554
+  (2707, 2344)	0.3535533845424652
+  (2707, 2707)	0.25
+</pre></div>
+</div>
+</div>
+</div>
+<p>torch用に変換．</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">features</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">FloatTensor</span><span class="p">(</span><span class="n">node_features</span><span class="o">.</span><span class="n">toarray</span><span class="p">())</span>
+<span class="n">labels</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">LongTensor</span><span class="p">(</span><span class="n">labels_enumerated</span><span class="p">)</span>
+<span class="n">adj</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">FloatTensor</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">adj</span><span class="o">.</span><span class="n">todense</span><span class="p">()))</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">features</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">adj</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">edges</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>tensor([[0., 0., 0.,  ..., 0., 0., 0.],
+        [0., 0., 0.,  ..., 0., 0., 0.],
+        [0., 0., 0.,  ..., 0., 0., 0.],
+        ...,
+        [0., 0., 0.,  ..., 0., 0., 0.],
+        [0., 0., 0.,  ..., 0., 0., 0.],
+        [0., 0., 0.,  ..., 0., 0., 0.]])
+tensor([2, 5, 3,  ..., 6, 4, 2])
+tensor([[0.1667, 0.0000, 0.0000,  ..., 0.0000, 0.0000, 0.0000],
+        [0.0000, 0.5000, 0.0000,  ..., 0.0000, 0.0000, 0.0000],
+        [0.0000, 0.0000, 0.2000,  ..., 0.0000, 0.0000, 0.0000],
+        ...,
+        [0.0000, 0.0000, 0.0000,  ..., 0.2000, 0.0000, 0.0000],
+        [0.0000, 0.0000, 0.0000,  ..., 0.0000, 0.2000, 0.0000],
+        [0.0000, 0.0000, 0.0000,  ..., 0.0000, 0.0000, 0.2500]])
+[[ 163  402]
+ [ 163  659]
+ [ 163 1696]
+ ...
+ [1887 2258]
+ [1902 1887]
+ [ 837 1686]]
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="id4">
+<h1>学習準備<a class="headerlink" href="#id4" title="このヘッドラインへのパーマリンク">#</a></h1>
+<p>訓練 (train data)，開発 (validation data)，検証データ(test data)の準備．
+データの分割方法は様々な方法があるが，ここでは訓練データはラベル毎に固定数個を用いて，開発と検証データは残りからランダムに抽出．各データに<strong>重複がない</strong>ようにする必要がある．</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">num_classes</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">labels</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="c1">#ラベル数を定義．グラフでは，ラベルをクラスと言うことも多い．</span>
+<span class="n">train_size_per_class</span><span class="o">=</span><span class="mi">20</span> <span class="c1">#ラベル毎の訓練データ数．合計の訓練データ量は 7 * 20 = 140データ</span>
+<span class="n">validation_size</span><span class="o">=</span><span class="mi">500</span> <span class="c1">#開発データ数</span>
+<span class="n">test_size</span><span class="o">=</span><span class="mi">1000</span> <span class="c1">#テストデータ数</span>
+<span class="n">classes</span> <span class="o">=</span> <span class="p">[</span><span class="n">ind</span> <span class="k">for</span> <span class="n">ind</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_classes</span><span class="p">)]</span>
+<span class="n">train_set</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="c1"># Construct train set (indices) out of 20 samples per each class</span>
+<span class="k">for</span> <span class="n">class_label</span> <span class="ow">in</span> <span class="n">classes</span><span class="p">:</span>
+    <span class="n">target_indices</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">labels</span> <span class="o">==</span> <span class="n">class_label</span><span class="p">,</span> <span class="n">as_tuple</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span> <span class="c1">#ラベルがclass_labelsであるデータを抽出</span>
+    <span class="n">train_set</span> <span class="o">+=</span> <span class="p">[</span><span class="n">ind</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">ind</span> <span class="ow">in</span> <span class="n">target_indices</span><span class="p">[:</span><span class="n">train_size_per_class</span><span class="p">]]</span> <span class="c1">#先頭からtrain_size_per_classまでのデータのインデックスを追加</span>
+
+
+<span class="c1"># Extract the remaining samples</span>
+<span class="n">validation_test_set</span> <span class="o">=</span> <span class="p">[</span><span class="n">ind</span> <span class="k">for</span> <span class="n">ind</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">labels</span><span class="p">))</span> <span class="k">if</span> <span class="n">ind</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">train_set</span><span class="p">]</span> <span class="c1">#訓練データに含まれていないデータのインデックスを抽出</span>
+<span class="c1"># Split the remaining samples into validation/test set</span>
+<span class="n">validation_set</span> <span class="o">=</span> <span class="n">validation_test_set</span><span class="p">[:</span><span class="n">validation_size</span><span class="p">]</span> <span class="c1">#先頭からvalidation_size番目までのデータのインデックスを開発データとして抽出</span>
+<span class="n">test_set</span> <span class="o">=</span> <span class="n">validation_test_set</span><span class="p">[</span><span class="n">validation_size</span><span class="p">:</span><span class="n">validation_size</span><span class="o">+</span><span class="n">test_size</span><span class="p">]</span> <span class="c1">#validation_sizeからvalidation_size+test_size番目までのデータのインデックスを検証データとして抽出</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>モデルの設定．</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dropout</span><span class="o">=</span><span class="mf">0.2</span>
+<span class="n">use_bias</span><span class="o">=</span><span class="kc">False</span>
+<span class="n">hidden_dim</span><span class="o">=</span><span class="mi">32</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">GCN</span><span class="p">(</span><span class="n">features</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">hidden_dim</span><span class="p">,</span><span class="n">num_classes</span><span class="p">,</span> <span class="n">dropout</span><span class="p">,</span> <span class="n">use_bias</span><span class="p">)</span> <span class="c1">#GCNのモデルを設定</span>
+<span class="c1">#model = MLP(features.shape[1], hidden_dim,num_classes, dropout)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">():</span> <span class="c1">#cudaが使えるなら，GPUで処理</span>
+  <span class="n">model</span><span class="o">.</span><span class="n">cuda</span><span class="p">()</span>
+  <span class="n">adj</span> <span class="o">=</span> <span class="n">adj</span><span class="o">.</span><span class="n">cuda</span><span class="p">()</span>
+  <span class="n">features</span> <span class="o">=</span> <span class="n">features</span><span class="o">.</span><span class="n">cuda</span><span class="p">()</span>
+  <span class="n">labels</span> <span class="o">=</span> <span class="n">labels</span><span class="o">.</span><span class="n">cuda</span><span class="p">()</span>
+
+<span class="n">optimizer</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.0001</span><span class="p">,</span> <span class="n">weight_decay</span><span class="o">=</span><span class="mf">0.0001</span><span class="p">)</span> <span class="c1">#learning rateとweight decayは適当に決定．</span>
+<span class="n">criterion</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">CrossEntropyLoss</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>精度計算用の関数</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">accuracy</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">labels</span><span class="p">):</span>
+    <span class="n">y_pred</span> <span class="o">=</span> <span class="n">output</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="mi">1</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">type_as</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>
+    <span class="n">correct</span> <span class="o">=</span> <span class="n">y_pred</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span><span class="o">.</span><span class="n">double</span><span class="p">()</span>
+    <span class="n">correct</span> <span class="o">=</span> <span class="n">correct</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">correct</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="id5">
+<h1>モデル学習<a class="headerlink" href="#id5" title="このヘッドラインへのパーマリンク">#</a></h1>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">maxepoch</span><span class="o">=</span><span class="mi">300</span>
+<span class="n">use_early_stopping</span><span class="o">=</span><span class="kc">False</span>
+<span class="n">patience</span><span class="o">=</span><span class="mi">30</span>
+
+<span class="n">validation_acc_list</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">validation_loss_list</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">train_acc_list</span><span class="o">=</span><span class="p">[]</span>
+<span class="n">train_loss_list</span><span class="o">=</span><span class="p">[]</span>
+
+<span class="k">if</span> <span class="n">use_early_stopping</span><span class="p">:</span>
+    <span class="n">last_min_val_loss</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s1">&#39;inf&#39;</span><span class="p">)</span>
+    <span class="n">patience_counter</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">stopped_early</span> <span class="o">=</span> <span class="kc">False</span>
+
+<span class="n">t_start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+<span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">maxepoch</span><span class="p">):</span>
+    <span class="n">optimizer</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
+
+    <span class="n">y_pred</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">adj</span><span class="p">)</span>
+
+    <span class="n">train_loss</span> <span class="o">=</span> <span class="n">criterion</span><span class="p">(</span><span class="n">y_pred</span><span class="p">[</span><span class="n">train_set</span><span class="p">],</span> <span class="n">labels</span><span class="p">[</span><span class="n">train_set</span><span class="p">])</span>
+    <span class="n">train_acc</span> <span class="o">=</span> <span class="n">accuracy</span><span class="p">(</span><span class="n">y_pred</span><span class="p">[</span><span class="n">train_set</span><span class="p">],</span> <span class="n">labels</span><span class="p">[</span><span class="n">train_set</span><span class="p">])</span>
+    <span class="n">train_loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+    <span class="n">optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+
+    <span class="n">train_loss_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">train_loss</span><span class="o">.</span><span class="n">item</span><span class="p">())</span> <span class="c1">#train_lossはtorch tensor型なので，lossの値のみitem()で取得</span>
+    <span class="n">train_acc_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">train_acc</span><span class="o">.</span><span class="n">item</span><span class="p">())</span>
+
+    <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+        <span class="n">val_loss</span> <span class="o">=</span> <span class="n">criterion</span><span class="p">(</span><span class="n">y_pred</span><span class="p">[</span><span class="n">validation_set</span><span class="p">],</span> <span class="n">labels</span><span class="p">[</span><span class="n">validation_set</span><span class="p">])</span>
+        <span class="n">val_acc</span> <span class="o">=</span> <span class="n">accuracy</span><span class="p">(</span><span class="n">y_pred</span><span class="p">[</span><span class="n">validation_set</span><span class="p">],</span> <span class="n">labels</span><span class="p">[</span><span class="n">validation_set</span><span class="p">])</span>
+
+        <span class="n">validation_loss_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">val_loss</span><span class="o">.</span><span class="n">item</span><span class="p">())</span>
+        <span class="n">validation_acc_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">val_acc</span><span class="o">.</span><span class="n">item</span><span class="p">())</span>
+
+        <span class="k">if</span> <span class="n">use_early_stopping</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">val_loss</span> <span class="o">&lt;</span> <span class="n">last_min_val_loss</span><span class="p">:</span> <span class="c1">#最小のlossを更新したら</span>
+                <span class="n">last_min_val_loss</span> <span class="o">=</span> <span class="n">val_loss</span>
+                <span class="n">patience_counter</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">patience_counter</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="n">patience_counter</span> <span class="o">==</span> <span class="n">patience</span><span class="p">:</span> <span class="c1">#最小のlossをpatience回連続で更新しなければ終了</span>
+                    <span class="n">stopped_early</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="n">t_end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">epoch</span><span class="o">%</span><span class="k">10</span> == 0: #10行毎に出力
+      <span class="nb">print</span><span class="p">(</span><span class="s2">&quot; | &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="sa">f</span><span class="s2">&quot;Epoch: </span><span class="si">{</span><span class="n">epoch</span><span class="si">:</span><span class="s2">4d</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Train loss: </span><span class="si">{</span><span class="n">train_loss</span><span class="o">.</span><span class="n">item</span><span class="p">()</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                      <span class="sa">f</span><span class="s2">&quot;Train acc: </span><span class="si">{</span><span class="n">train_acc</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                      <span class="sa">f</span><span class="s2">&quot;Val loss: </span><span class="si">{</span><span class="n">val_loss</span><span class="o">.</span><span class="n">item</span><span class="p">()</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                      <span class="sa">f</span><span class="s2">&quot;Val acc: </span><span class="si">{</span><span class="n">val_acc</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]))</span>
+
+    <span class="k">if</span> <span class="n">use_early_stopping</span> <span class="ow">and</span> <span class="n">stopped_early</span><span class="p">:</span>
+        <span class="k">break</span>
+
+<span class="k">if</span> <span class="n">use_early_stopping</span> <span class="ow">and</span> <span class="n">stopped_early</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;EARLY STOPPING condition met. Stopped at epoch: </span><span class="si">{</span><span class="n">epoch</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">t_end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Total training time: </span><span class="si">{</span><span class="n">t_end</span><span class="o">-</span><span class="n">t_start</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> seconds&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Epoch:    0 | Train loss: 1.951 | Train acc: 0.19 | Val loss: 1.955 | Val acc: 0.14
+Epoch:   10 | Train loss: 1.931 | Train acc: 0.26 | Val loss: 1.946 | Val acc: 0.15
+Epoch:   20 | Train loss: 1.909 | Train acc: 0.34 | Val loss: 1.937 | Val acc: 0.23
+Epoch:   30 | Train loss: 1.894 | Train acc: 0.47 | Val loss: 1.925 | Val acc: 0.31
+Epoch:   40 | Train loss: 1.866 | Train acc: 0.57 | Val loss: 1.910 | Val acc: 0.39
+Epoch:   50 | Train loss: 1.851 | Train acc: 0.63 | Val loss: 1.900 | Val acc: 0.43
+Epoch:   60 | Train loss: 1.822 | Train acc: 0.73 | Val loss: 1.887 | Val acc: 0.47
+Epoch:   70 | Train loss: 1.795 | Train acc: 0.78 | Val loss: 1.870 | Val acc: 0.52
+Epoch:   80 | Train loss: 1.767 | Train acc: 0.81 | Val loss: 1.851 | Val acc: 0.57
+Epoch:   90 | Train loss: 1.743 | Train acc: 0.82 | Val loss: 1.835 | Val acc: 0.57
+Epoch:  100 | Train loss: 1.710 | Train acc: 0.83 | Val loss: 1.812 | Val acc: 0.61
+Epoch:  110 | Train loss: 1.681 | Train acc: 0.86 | Val loss: 1.794 | Val acc: 0.67
+Epoch:  120 | Train loss: 1.648 | Train acc: 0.86 | Val loss: 1.775 | Val acc: 0.67
+Epoch:  130 | Train loss: 1.616 | Train acc: 0.87 | Val loss: 1.747 | Val acc: 0.69
+Epoch:  140 | Train loss: 1.575 | Train acc: 0.89 | Val loss: 1.721 | Val acc: 0.71
+Epoch:  150 | Train loss: 1.543 | Train acc: 0.90 | Val loss: 1.702 | Val acc: 0.71
+Epoch:  160 | Train loss: 1.520 | Train acc: 0.90 | Val loss: 1.686 | Val acc: 0.72
+Epoch:  170 | Train loss: 1.484 | Train acc: 0.91 | Val loss: 1.661 | Val acc: 0.71
+Epoch:  180 | Train loss: 1.444 | Train acc: 0.90 | Val loss: 1.634 | Val acc: 0.72
+Epoch:  190 | Train loss: 1.411 | Train acc: 0.90 | Val loss: 1.620 | Val acc: 0.72
+Epoch:  200 | Train loss: 1.388 | Train acc: 0.92 | Val loss: 1.596 | Val acc: 0.73
+Epoch:  210 | Train loss: 1.349 | Train acc: 0.90 | Val loss: 1.573 | Val acc: 0.74
+Epoch:  220 | Train loss: 1.318 | Train acc: 0.93 | Val loss: 1.565 | Val acc: 0.73
+Epoch:  230 | Train loss: 1.293 | Train acc: 0.91 | Val loss: 1.539 | Val acc: 0.74
+Epoch:  240 | Train loss: 1.252 | Train acc: 0.91 | Val loss: 1.516 | Val acc: 0.74
+Epoch:  250 | Train loss: 1.244 | Train acc: 0.91 | Val loss: 1.499 | Val acc: 0.73
+Epoch:  260 | Train loss: 1.204 | Train acc: 0.93 | Val loss: 1.474 | Val acc: 0.74
+Epoch:  270 | Train loss: 1.185 | Train acc: 0.91 | Val loss: 1.457 | Val acc: 0.75
+Epoch:  280 | Train loss: 1.153 | Train acc: 0.94 | Val loss: 1.435 | Val acc: 0.75
+Epoch:  290 | Train loss: 1.123 | Train acc: 0.92 | Val loss: 1.423 | Val acc: 0.76
+Total training time: 1.13 seconds
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="id6">
+<h1>テスト精度の検証<a class="headerlink" href="#id6" title="このヘッドラインへのパーマリンク">#</a></h1>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">criterion</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">CrossEntropyLoss</span><span class="p">()</span>
+
+<span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+    <span class="n">y_pred</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">adj</span><span class="p">)</span>
+    <span class="n">test_loss</span> <span class="o">=</span> <span class="n">criterion</span><span class="p">(</span><span class="n">y_pred</span><span class="p">[</span><span class="n">test_set</span><span class="p">],</span> <span class="n">labels</span><span class="p">[</span><span class="n">test_set</span><span class="p">])</span>
+    <span class="n">test_acc</span> <span class="o">=</span> <span class="n">accuracy</span><span class="p">(</span><span class="n">y_pred</span><span class="p">[</span><span class="n">test_set</span><span class="p">],</span> <span class="n">labels</span><span class="p">[</span><span class="n">test_set</span><span class="p">])</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Test loss: </span><span class="si">{</span><span class="n">test_loss</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">  |  Test acc: </span><span class="si">{</span><span class="n">test_acc</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Test loss: 1.474  |  Test acc: 0.74
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="id7">
+<h1>結果の描画<a class="headerlink" href="#id7" title="このヘッドラインへのパーマリンク">#</a></h1>
+<p>まずは，訓練データのロスと精度，開発データのロスと精度がエポック毎にどのように変化してるか見てみましょう．</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">f</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">13</span><span class="p">,</span> <span class="mf">5.5</span><span class="p">))</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">validation_loss_list</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">train_loss_list</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Cross Entropy Loss&quot;</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Cross Entropy Loss&quot;</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Epoch&quot;</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+
+<span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">validation_acc_list</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">train_acc_list</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Accuracy&quot;</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Acc&quot;</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Epoch&quot;</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/GCN_36_0.png" src="../_images/GCN_36_0.png" />
+</div>
+</div>
+<p>学習後のfeatureがラベルごとにかたまっている見てみましょう．
+ここでは，tSNEを用いて多次元データを2次元に落とし込んで可視化をします．</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cora_label_to_color_map</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="s2">&quot;green&quot;</span><span class="p">,</span>
+                           <span class="mi">3</span><span class="p">:</span> <span class="s2">&quot;orange&quot;</span><span class="p">,</span> <span class="mi">4</span><span class="p">:</span> <span class="s2">&quot;yellow&quot;</span><span class="p">,</span> <span class="mi">5</span><span class="p">:</span> <span class="s2">&quot;pink&quot;</span><span class="p">,</span> <span class="mi">6</span><span class="p">:</span> <span class="s2">&quot;gray&quot;</span><span class="p">}</span> <span class="c1">#識別性を高めるために，ラベルごとに色を固定化．coraのラベル数が7のため，0 から 6にそれぞれ色を割り当てる．</span>
+
+
+<span class="c1">#%config InlineBackend.figure_format = &#39;retina&#39; #画像の画質を向上したい場合，コメントアウト</span>
+
+<span class="n">node_labels</span> <span class="o">=</span> <span class="n">labels</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+<span class="n">out_features</span> <span class="o">=</span> <span class="n">y_pred</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+<span class="n">t_sne_embeddings</span> <span class="o">=</span> <span class="n">TSNE</span><span class="p">(</span><span class="n">n_components</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">perplexity</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;barnes_hut&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">out_features</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">class_id</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_classes</span><span class="p">):</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">t_sne_embeddings</span><span class="p">[</span><span class="n">node_labels</span> <span class="o">==</span> <span class="n">class_id</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                <span class="n">t_sne_embeddings</span><span class="p">[</span><span class="n">node_labels</span> <span class="o">==</span> <span class="n">class_id</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">s</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+                <span class="n">color</span><span class="o">=</span><span class="n">cora_label_to_color_map</span><span class="p">[</span><span class="n">class_id</span><span class="p">],</span>
+                <span class="n">edgecolors</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span> <span class="n">linewidths</span><span class="o">=</span><span class="mf">0.15</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">&quot;off&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Visualizing t-SNE&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>/usr/local/lib/python3.8/dist-packages/sklearn/manifold/_t_sne.py:780: FutureWarning: The default initialization in TSNE will change from &#39;random&#39; to &#39;pca&#39; in 1.2.
+  warnings.warn(
+/usr/local/lib/python3.8/dist-packages/sklearn/manifold/_t_sne.py:790: FutureWarning: The default learning rate in TSNE will change from 200.0 to &#39;auto&#39; in 1.2.
+  warnings.warn(
+</pre></div>
+</div>
+<img alt="../_images/GCN_38_1.png" src="../_images/GCN_38_1.png" />
+</div>
+</div>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="id8">
+<h1>課題<a class="headerlink" href="#id8" title="このヘッドラインへのパーマリンク">#</a></h1>
+<p><strong>1. GCNではなくMLPをモデルとするように変更してください．</strong></p>
+<p>2層のMLPモデルは下記になります．埋め込んでみましょう．</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MLP</span> <span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_features</span><span class="p">,</span> <span class="n">hidden_dim</span><span class="p">,</span> <span class="n">num_classes</span><span class="p">,</span> <span class="n">dropout</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">MLP</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fc1</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">node_features</span><span class="p">,</span> <span class="n">hidden_dim</span><span class="p">)</span>   
+        <span class="bp">self</span><span class="o">.</span><span class="n">fc2</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">hidden_dim</span><span class="p">,</span> <span class="n">num_classes</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dropout1</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Dropout2d</span><span class="p">(</span><span class="n">dropout</span><span class="p">)</span>
+        
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fc1</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dropout1</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">F</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fc2</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>MLPをモデルとして設定して，呼び出してみましょう．下記を適切な場所に埋め込んでください．</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">MLP</span><span class="p">(</span><span class="n">features</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">hidden_dim</span><span class="p">,</span><span class="n">num_classes</span><span class="p">,</span> <span class="n">dropout</span><span class="p">)</span>
+<span class="n">y_pred</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">adj</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="gt">---------------------------------------------------------------------------</span>
+<span class="ne">TypeError</span><span class="g g-Whitespace">                                 </span>Traceback (most recent call last)
+<span class="o">&lt;</span><span class="n">ipython</span><span class="o">-</span><span class="nb">input</span><span class="o">-</span><span class="mi">67</span><span class="o">-</span><span class="mi">4</span><span class="n">b6eb9a227b6</span><span class="o">&gt;</span> <span class="ow">in</span> <span class="o">&lt;</span><span class="n">module</span><span class="o">&gt;</span>
+<span class="g g-Whitespace">      </span><span class="mi">1</span> <span class="n">model</span> <span class="o">=</span> <span class="n">MLP</span><span class="p">(</span><span class="n">features</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">hidden_dim</span><span class="p">,</span><span class="n">num_classes</span><span class="p">,</span> <span class="n">dropout</span><span class="p">)</span>
+<span class="ne">----&gt; </span><span class="mi">2</span> <span class="n">y_pred</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">adj</span><span class="p">)</span>
+
+<span class="nn">/usr/local/lib/python3.8/dist-packages/torch/nn/modules/module.py</span> in <span class="ni">_call_impl</span><span class="nt">(self, *input, **kwargs)</span>
+<span class="g g-Whitespace">   </span><span class="mi">1192</span>         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_backward_hooks</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_forward_hooks</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_forward_pre_hooks</span> <span class="ow">or</span> <span class="n">_global_backward_hooks</span>
+<span class="g g-Whitespace">   </span><span class="mi">1193</span>                 <span class="ow">or</span> <span class="n">_global_forward_hooks</span> <span class="ow">or</span> <span class="n">_global_forward_pre_hooks</span><span class="p">):</span>
+<span class="ne">-&gt; </span><span class="mi">1194</span>             <span class="k">return</span> <span class="n">forward_call</span><span class="p">(</span><span class="o">*</span><span class="nb">input</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+<span class="g g-Whitespace">   </span><span class="mi">1195</span>         <span class="c1"># Do not call functions when jit is used</span>
+<span class="g g-Whitespace">   </span><span class="mi">1196</span>         <span class="n">full_backward_hooks</span><span class="p">,</span> <span class="n">non_full_backward_hooks</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+
+<span class="ne">TypeError</span>: forward() takes 2 positional arguments but 3 were given
+</pre></div>
+</div>
+</div>
+</div>
+<p>MLPとGCNの精度を比較して，隣接節点の情報を使うとどのくらい精度が上がるのか確認しましょう．</p>
+<p><strong>2. GCN layerの総数を1から4に変更して，予測精度の変化を確認してください．</strong></p>
+<p>class GCN(nn.Module)を変更するだけで，総数を変更できます．</p>
+<p><strong>3. t-SNEの可視化を10エポック毎に行い，featureの変化を確認してください．その際，t-SNEの可視化処理を関数化するとわかりやすいです．</strong></p>
+<p>下記の関数を活用して，可視化を行いましょう．</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">visualize_embedding_tSNE</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">,</span> <span class="n">num_classes</span><span class="p">):</span>
+
+    <span class="n">cora_label_to_color_map</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="s2">&quot;green&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="s2">&quot;orange&quot;</span><span class="p">,</span> <span class="mi">4</span><span class="p">:</span> <span class="s2">&quot;yellow&quot;</span><span class="p">,</span> <span class="mi">5</span><span class="p">:</span> <span class="s2">&quot;pink&quot;</span><span class="p">,</span> <span class="mi">6</span><span class="p">:</span> <span class="s2">&quot;gray&quot;</span><span class="p">}</span>
+
+    <span class="n">node_labels</span> <span class="o">=</span> <span class="n">labels</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+    <span class="n">out_features</span> <span class="o">=</span> <span class="n">y_pred</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+    <span class="n">t_sne_embeddings</span> <span class="o">=</span> <span class="n">TSNE</span><span class="p">(</span><span class="n">n_components</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">perplexity</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;barnes_hut&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">out_features</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">class_id</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_classes</span><span class="p">):</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">t_sne_embeddings</span><span class="p">[</span><span class="n">node_labels</span> <span class="o">==</span> <span class="n">class_id</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                    <span class="n">t_sne_embeddings</span><span class="p">[</span><span class="n">node_labels</span> <span class="o">==</span> <span class="n">class_id</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">s</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+                    <span class="n">color</span><span class="o">=</span><span class="n">cora_label_to_color_map</span><span class="p">[</span><span class="n">class_id</span><span class="p">],</span>
+                    <span class="n">edgecolors</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span> <span class="n">linewidths</span><span class="o">=</span><span class="mf">0.15</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">&quot;off&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Visualizing t-SNE&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./code"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="../03SGC.html" title="前へ ページ">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">前へ</p>
+            <p class="prev-next-title">SGC</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="GAT.html" title="次へ ページ">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">次へ</p>
+        <p class="prev-next-title">GAT実装</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    <div class="extra_footer">
+      © Copyright 2023 by 佐々木 勇和 (Yuya Sasaki). この作品は<a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/4.0/">クリエイティブ・コモンズ 表示 - 非営利 - 改変禁止 4.0 国際 ライセンス</a>の下に提供されています。 <a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/4.0/"><img alt="クリエイティブ・コモンズ・ライセンス" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-nd/4.0/80x15.png" /></a>　ただし、作品中のコードセル部分は<a rel="license" href="https://opensource.org/licenses/MIT">MITライセンス</a>の下に提供されています。
+
+    </div>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>
